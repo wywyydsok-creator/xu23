@@ -1,0 +1,23 @@
+﻿# === Large binary files ===
+music/*.mp3
+music/*.ogg
+music/*.wav
+
+# === OS junk ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === Node / build artifacts ===
+node_modules/
+*.log
+
+# === User photos (originals in xu图片/) ===
+photos/slot/
