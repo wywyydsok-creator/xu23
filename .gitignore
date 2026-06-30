@@ -18,6 +18,3 @@ Desktop.ini
 # === Node / build artifacts ===
 node_modules/
 *.log
-
-# === User photos (originals in xu图片/) ===
-photos/slot/

@@ -410,43 +410,68 @@ function initPhotoGrid() {
     }
     goTo(0);
 
-    var sx = 0, curTx = 0, drag = false;
+    var sx = 0, startTime = 0, drag = false, touchHandled = false;
     vp.addEventListener('touchstart', function(e) {
       if (vp.classList.contains('spinning')) return;
-      sx = e.touches[0].clientX; drag = true;
+      touchHandled = true;
+      sx = e.touches[0].clientX;
+      drag = true;
+      startTime = Date.now();
       tk.style.transition = 'none';
-      curTx = -cur * vp.offsetWidth;
     }, { passive: true });
     vp.addEventListener('touchmove', function(e) {
       if (!drag || vp.classList.contains('spinning')) return;
-      tk.style.transform = 'translateX(' + (curTx + e.touches[0].clientX - sx) + 'px)';
+      var dx = e.touches[0].clientX - sx;
+      var pct = (-cur * 100) + (dx / vp.offsetWidth * 100);
+      tk.style.transform = 'translateX(' + pct + '%)';
     }, { passive: true });
     vp.addEventListener('touchend', function(e) {
-      if (!drag) return; drag = false;
+      if (!drag) return;
+      drag = false;
       tk.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
       var dx = e.changedTouches[0].clientX - sx;
-      if (dx < -vp.offsetWidth * 0.2) goTo(cur + 1);
-      else if (dx > vp.offsetWidth * 0.2) goTo(cur - 1);
-      else goTo(cur);
+      var elapsed = Date.now() - startTime;
+      var velocity = Math.abs(dx) / Math.max(elapsed, 1);
+      var threshold = vp.offsetWidth * 0.2;
+      if (dx < -threshold || (dx < -15 && velocity > 0.4)) {
+        goTo(cur + 1);
+      } else if (dx > threshold || (dx > 15 && velocity > 0.4)) {
+        goTo(cur - 1);
+      } else {
+        goTo(cur);
+      }
+      setTimeout(function() { touchHandled = false; }, 350);
     }, { passive: true });
     vp.addEventListener('mousedown', function(e) {
       if (vp.classList.contains('spinning')) return;
-      sx = e.clientX; drag = true;
+      if (touchHandled) return;
+      sx = e.clientX;
+      drag = true;
+      startTime = Date.now();
       tk.style.transition = 'none';
-      curTx = -cur * vp.offsetWidth;
       e.preventDefault();
     });
     document.addEventListener('mousemove', function(e) {
-      if (!drag) return;
-      tk.style.transform = 'translateX(' + (curTx + e.clientX - sx) + 'px)';
+      if (!drag || touchHandled) return;
+      var dx = e.clientX - sx;
+      var pct = (-cur * 100) + (dx / vp.offsetWidth * 100);
+      tk.style.transform = 'translateX(' + pct + '%)';
     });
     document.addEventListener('mouseup', function(e) {
-      if (!drag) return; drag = false;
+      if (!drag || touchHandled) return;
+      drag = false;
       tk.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
       var dx = e.clientX - sx;
-      if (dx < -vp.offsetWidth * 0.2) goTo(cur + 1);
-      else if (dx > vp.offsetWidth * 0.2) goTo(cur - 1);
-      else goTo(cur);
+      var elapsed = Date.now() - startTime;
+      var velocity = Math.abs(dx) / Math.max(elapsed, 1);
+      var threshold = vp.offsetWidth * 0.2;
+      if (dx < -threshold || (dx < -15 && velocity > 0.4)) {
+        goTo(cur + 1);
+      } else if (dx > threshold || (dx > 15 && velocity > 0.4)) {
+        goTo(cur - 1);
+      } else {
+        goTo(cur);
+      }
     });
     dots.forEach(function(dot) {
       dot.addEventListener('click', function() {
