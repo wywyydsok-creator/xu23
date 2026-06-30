@@ -1,9 +1,4 @@
-﻿# === Large binary files ===
-music/*.mp3
-music/*.ogg
-music/*.wav
-
-# === OS junk ===
+﻿# === OS junk ===
 .DS_Store
 Thumbs.db
 Desktop.ini
