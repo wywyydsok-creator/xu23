@@ -1234,7 +1234,7 @@ h1, h2, h3, h4 {
   }
 
   .hero-content {
-    padding-top: 16vh;
+    padding-top: 6vh;
   }
 
   .hero-text {
@@ -1242,7 +1242,7 @@ h1, h2, h3, h4 {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 14vh;
+    margin-bottom: 12vh;
   }
 
   .hero-cake {
@@ -1250,7 +1250,7 @@ h1, h2, h3, h4 {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding-bottom: 8vh;
+    padding-bottom: 6vh;
   }
 
   .hero-title {
