@@ -1802,8 +1802,8 @@ h1, h2, h3, h4 {
     margin: 0 auto;
   }
   .slot-boxes {
-    flex-direction: row;
-    gap: 10px;
+    flex-direction: column;
+    gap: 16px;
   }
   .slot-viewport {
     aspect-ratio: 3/4;
@@ -1829,3 +1829,34 @@ h1, h2, h3, h4 {
 
 
 
+/* ---------- Floating Wish Strips ---------- */
+.wish-strip {
+  position: absolute;
+  bottom: -50px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 2.2vw, 17px);
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 12px rgba(45, 35, 38, 0.08);
+  opacity: 0;
+  z-index: 10;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+@media (max-width: 600px) {
+  .wish-strip {
+    font-size: clamp(12px, 3.5vw, 14px);
+    padding: 6px 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wish-strip {
+    display: none;
+  }
+}

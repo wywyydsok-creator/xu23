@@ -63,7 +63,7 @@ function initLoadingScreen() {
 
       if (m) setTimeout(function() { m.classList.add('visible'); }, 300);
 
-    }
+ }
 
   }, 4000);
 
@@ -250,7 +250,7 @@ function initStoryContent() {
 
     { title: 'First Meet', date: '2025\u5e745\u67081\u65e5', text: '\u6211\u4eec\u76f8\u9047\u5728\u6cb9\u5316\u5382\uff0c\u611f\u8c22\u9c9c\u5564\u798f\u9e7f\u5bb6\\n\u6700\u559c\u6b22\u5403\u996d\u7684\u65f6\u5019\uff0c\u56e0\u4e3a\u80fd\u548c\u4f60\u4e00\u8d77\u8d70\u8d70\u563b\u563b\u563b\\n\u5b9d\u5b9d\u84dd\u8272\u7684\u773c\u775b\u4ffa\u8fd8\u662f\u7b2c\u4e00\u6b21\u89c1' },
 
-    { title: 'First Date', date: '2025\u5e745\u670826\u65e5', text: '\u6211\u4eec\u53bb\u56fd\u8d38\u7684\u72d7\u5496\uff0c\u8be1\u5440\uff0c\u7b2c\u4e00\u6b21\u7275\u624b\u563f\u563f\u563f\\n\u6700\u540e\u9001\u5b9d\u5b9d\u5230\u5bbf\u820d\u56ed\u533a\u5916\u9762' },
+    { title: 'First Date', date: '2025\u5e745\u670826\u65e5', text: '\u6211\u4eec\u53bb\u56fd\u8d38\u7684\u72d7\u5496\uff0c\u563b\u563b\u563b\uff0c\u7b2c\u4e00\u6b21\u7275\u624b\u563f\u563f\u563f\\n\u6700\u540e\u9001\u5b9d\u5b9d\u5230\u5bbf\u820d\u56ed\u533a\u5916\u9762' },
 
     { title: 'Our Journey', date: '\u6211\u4eec\u7684\u70b9\u70b9\u6ef4\u6ef4', text: '\u6211\u4eec\u4e00\u8d77\u8d70\u5728\u4e91\u53f0\u5c71\u7684\u5ce1\u8c37\uff0c\u56db\u5468\u90fd\u662f\u6f7a\u6f7a\u7684\u6eaa\u6d41\uff0c\u975e\u5e38\u7684\u653e\u677e\\n\u5728\u6d1b\u9633\u4eae\u8d77\u6ee1\u57ce\u706f\u706b\u7684\u90a3\u5929\uff0c\u6211\u4eec\u80a9\u5e76\u80a9\u8d70\u5728\u9752\u7816\u8def\u4e0a\uff0c\u6211\u7684\u773c\u91cc\u5168\u662f\u4f60\u3002\\n\u56fe\u4e66\u9986\u91cc\u5b89\u9759\u5b66\u4e60\u7684\u65f6\u5149\uff0c\u53ea\u8981\u4e00\u8f6c\u5934\uff0c\u5c31\u80fd\u770b\u5230\u4f60\u8ba4\u771f\u4fa7\u8138\u7684\u6a21\u6837\uff0c\u90a3\u662f\u5c5e\u4e8e\u6211\u4eec\u6700\u8e0f\u5b9e\u7684\u966a\u4f34\u3002' },
 
@@ -907,10 +907,57 @@ function initCelebration() {
     }
   }
 
+  // Floating wish strips
+  var wishTexts = [
+    '\u5E73\u5E73\u5B89\u5B89', '\u5065\u5065\u5EB7\u5EB7', '\u5FEB\u4E50\u4E0D\u6B62\u751F\u65E5',
+    '\u4F1A\u6210\u4E3A\u4F1F\u5927\u7684\u6444\u5F71\u5E08', '\u6210\u957F\u7684\u5C81', '\u6C38\u8FDC\u5E78\u798F',
+    '\u5C11\u70B9\u70E6\u607C', '\u591A\u70B9\u597D\u8FD0', '\u4E0D\u59D4\u5C48\u81EA\u5DF1',
+    '\u8EAB\u4F53\u7B2C\u4E00', '\u4F1A\u8D8A\u6765\u8D8A\u597D',
+    '\u5E0C\u671B\u6BCF\u5929\u90FD\u80FD\u7761\u4E2A\u597D\u89C9', '\u4E0A\u73ED\u987A\u987A\u5229\u5229\uFF0C\u4E0B\u73ED\u5F00\u5F00\u5FC3\u5FC3',
+    '\u5E0C\u671B\u4F60\u60F3\u505A\u7684\u4E8B\u60C5\u90FD\u6162\u6162\u5B9E\u73B0', '\u613F\u4F60\u4E00\u5E74\u6BD4\u4E00\u5E74\u4ECE\u5BB9',
+    '\u613F\u4F60\u7684\u4E16\u754C\u4E00\u76F4\u6709\u5149', '\u5148\u7167\u987E\u597D\u81EA\u5DF1\u7136\u540E\u6162\u6162\u53D8\u5389\u5BB3'
+  ];
+  var bgPalette = [
+    'rgba(253,248,249,0.88)', 'rgba(250,240,242,0.88)', 'rgba(240,222,226,0.88)',
+    'rgba(232,196,202,0.88)', 'rgba(248,237,240,0.88)'
+  ];
+
+  wishTexts.forEach(function(text, idx) {
+    setTimeout(function() {
+      var strip = document.createElement('div');
+      strip.className = 'wish-strip';
+      strip.textContent = text;
+
+      strip.style.left = (5 + Math.random() * 75) + '%';
+      strip.style.background = bgPalette[Math.floor(Math.random() * bgPalette.length)];
+      strip.style.color = '#A66D78';
+      strip.style.border = '1px solid rgba(212,166,174,0.25)';
+
+      var dur = 5 + Math.random() * 4;
+      var xSway = (Math.random() - 0.5) * 160;
+      var rot = (Math.random() - 0.5) * 40;
+      var yDist = -(450 + Math.random() * 400);
+
+      strip.animate([
+        { opacity: 0, transform: 'translate(0,0) rotate(0deg)', offset: 0 },
+        { opacity: 1, transform: 'translate(' + xSway*0.3 + 'px,' + yDist*0.25 + 'px) rotate(' + rot*0.3 + 'deg)', offset: 0.15 },
+        { opacity: 1, transform: 'translate(' + xSway*0.6 + 'px,' + yDist*0.55 + 'px) rotate(' + rot*0.6 + 'deg)', offset: 0.45 },
+        { opacity: 0.85, transform: 'translate(' + xSway*0.9 + 'px,' + yDist*0.85 + 'px) rotate(' + rot*0.9 + 'deg)', offset: 0.75 },
+        { opacity: 0, transform: 'translate(' + xSway*1.2 + 'px,' + yDist + 'px) rotate(' + rot*1.2 + 'deg)', offset: 1 }
+      ], {
+        duration: dur * 1000,
+        easing: 'cubic-bezier(0.15,0.5,0.3,1)',
+        fill: 'forwards'
+      });
+
+      container.appendChild(strip);
+    }, 3000 + idx * 250);
+  });
+
   // Cleanup after animation
   setTimeout(function() {
     container.innerHTML = '';
-  }, 7000);
+ }, 18000);
 }
 
 
