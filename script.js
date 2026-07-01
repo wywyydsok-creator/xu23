@@ -389,7 +389,10 @@ function initPhotoGrid() {
     }
     html += '</div></div>';
   }
-  html += '</div><button class="slot-spin-btn" id="slotSpinBtn">?? 随机定格我们的回忆</button></div>';
+    html += '</div><div class="slot-actions">';
+    html += '<button class="slot-spin-btn" id="slotSpinBtn">?? 随机定格我们的回忆</button>';
+    html += '<button class="slot-manage-btn" id="slotManageBtn">管理图库</button>';
+  html += '</div></div>';
   container.innerHTML = html;
 
   var boxes = container.querySelectorAll('.slot-box');
@@ -525,8 +528,363 @@ function initPhotoGrid() {
       setTimeout(tick, si * 120);
     });
   });
+  // Initialize gallery manager
+  setupGalleryManager(container);
 }
 
+
+function setupGalleryManager(container) {
+  // ---- Default photo list ----
+  var defaultFiles = [
+    '\u4e91\u53f0\u5c71\u53ef\u7231.jpg','\u53ef\u7231.jpeg','\u56fe\u4e66\u9986\u5b66\u4e60ing.jpg','\u5730\u94c1\u7ad9\u6444.jpeg',
+    '\u5927\u89c2\u97f3\u5bfa.jpg','\u5b9d\u5b9d\u5728\u5d69\u5c71.jpg','\u5b9d\u5b9d\u5728\u6d77\u6d0b\u9986.jpg','\u5b9d\u5b9d\u5728\u9f99\u6f6d\u5927\u5ce1\u8c37.jpg',
+    '\u5b9d\u5b9d\u5927\u4e00.jpg','\u5b9d\u5b9d\u6b66\u529f\u5c71\u4e4b\u65c5.jpg','\u62fc\u8c46\u6210\u5c31.jpg','\u6d1b\u9633\u4e4b\u7f8e\u4e3d.jpg',
+    '\u7b2c\u4e00\u6b21\u89c1\u9762\u563f\u563f.jpg','\u7ea2\u77f3\u5ce1.jpg','\u7f8e\u4e3d\u4e4b\u5408\u7167.jpg','\u7f8e\u7ffb\u4e86.jpeg',
+    '\u975e\u5e38\u7684\u975e\u5e38\u7f8e\u4e3d.jpg','\u975e\u5e38\u7f8e\u4e3d.jpg'
+  ];
+  var base = 'photos/slot/';
+
+  // ---- IndexedDB helpers ----
+  function openDB(cb) {
+    var req = indexedDB.open('PhotoGallery', 1);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains('photos')) {
+        db.createObjectStore('photos', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    req.onsuccess = function() { cb(req.result); };
+    req.onerror = function() { cb(null); };
+  }
+  function getAllUserPhotos(cb) {
+    openDB(function(db) {
+      if (!db) { cb([]); return; }
+      var tx = db.transaction('photos', 'readonly');
+      var req = tx.objectStore('photos').getAll();
+      req.onsuccess = function() { cb(req.result || []); };
+      req.onerror = function() { cb([]); };
+    });
+  }
+  function addUserPhotos(photos, cb) {
+    openDB(function(db) {
+      if (!db) { if (cb) cb(); return; }
+      var tx = db.transaction('photos', 'readwrite');
+      var store = tx.objectStore('photos');
+      var added = 0;
+      photos.forEach(function(p) {
+        var r = store.add({ data: p.src, name: p.name, added: Date.now() });
+        r.onerror = function(e) { if (e.target.error && e.target.error.name === 'QuotaExceededError') { alert('存储空间已满，无法添加更多照片。'); } };
+      });
+      tx.oncomplete = function() { if (cb) cb(); };
+      tx.onerror = function() { if (cb) cb(); };
+    });
+  }
+  function deleteUserPhoto(id, cb) {
+    openDB(function(db) {
+      if (!db) { if (cb) cb(); return; }
+      var tx = db.transaction('photos', 'readwrite');
+      tx.objectStore('photos').delete(id);
+      tx.oncomplete = function() { if (cb) cb(); };
+    });
+  }
+
+  // ---- Create hidden file input ----
+  var fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  fileInput.multiple = true;
+  fileInput.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none;';
+  document.body.appendChild(fileInput);
+
+  // ---- Create modal ----
+  var overlay = document.createElement('div');
+  overlay.className = 'gallery-overlay';
+  overlay.style.display = 'none';
+  overlay.innerHTML =
+    '<div class="gallery-modal">' +
+      '<div class="gallery-header">' +
+        '<div><h3>管理图库 <span class="gallery-count" id="galleryCount"></span></h3></div>' +
+        '<button class="gallery-close-btn" id="galleryCloseBtn">&times;</button>' +
+      '</div>' +
+      '<div class="gallery-toolbar">' +
+        '<button class="gallery-add-btn" id="galleryAddBtn">+ 添加照片</button>' +
+      '</div>' +
+      '<div class="gallery-body" id="galleryBody"></div>' +
+    '</div>';
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.style.display = 'none';
+  });
+  document.body.appendChild(overlay);
+
+  // ---- Manage button handler ----
+  var manageBtn = container.querySelector('#slotManageBtn');
+  if (manageBtn) {
+    manageBtn.addEventListener('click', function() {
+      refreshGalleryView();
+      overlay.style.display = 'flex';
+    });
+  }
+
+  // ---- Close button ----
+  overlay.querySelector('#galleryCloseBtn').addEventListener('click', function() {
+    overlay.style.display = 'none';
+  });
+
+  // ---- Add button: trigger file picker ----
+  overlay.querySelector('#galleryAddBtn').addEventListener('click', function() {
+    fileInput.value = '';
+    fileInput.click();
+  });
+
+  // ---- File selected: read and store ----
+  fileInput.addEventListener('change', function() {
+    var files = Array.prototype.slice.call(fileInput.files);
+    if (files.length === 0) return;
+    var maxTotal = 1000;
+    getAllUserPhotos(function(existing) {
+      var remaining = maxTotal - (existing ? existing.length : 0);
+      if (remaining <= 0) {
+        alert('图库已满（最多1000张照片），请先删除一些照片再添加。');
+        return;
+      }
+      var toAdd = files.slice(0, remaining);
+      var results = [];
+      var pending = toAdd.length;
+      if (pending === 0) return;
+      toAdd.forEach(function(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          results.push({ src: e.target.result, name: file.name });
+          pending--;
+          if (pending === 0) {
+            addUserPhotos(results, function() {
+              refreshGalleryView();
+              rebuildAllSlots();
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  });
+
+  // ---- Refresh gallery view (load and display) ----
+  function refreshGalleryView() {
+    var body = overlay.querySelector('#galleryBody');
+    var count = overlay.querySelector('#galleryCount');
+    getAllUserPhotos(function(userPhotos) {
+      var totalDefault = defaultFiles.length;
+      var totalUser = userPhotos ? userPhotos.length : 0;
+      var grandTotal = totalDefault + totalUser;
+      count.textContent = '(' + grandTotal + ' / 1000)';
+      if (totalUser === 0) {
+        body.innerHTML = '<div class="gallery-empty">还没有添加自定义照片<br>点击上方按钮添加</div>';
+        return;
+      }
+      var h = '';
+      for (var i = userPhotos.length - 1; i >= 0; i--) {
+        var p = userPhotos[i];
+        h += '<div class="gallery-item">';
+        h += '<img src="' + p.data + '" alt="" loading="lazy">';
+        h += '<button class="gallery-del-btn" data-id="' + p.id + '">&times;</button>';
+        h += '</div>';
+      }
+      body.innerHTML = h;
+      // Attach delete handlers
+      body.querySelectorAll('.gallery-del-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = Number(this.getAttribute('data-id'));
+          if (confirm('删除这张照片？')) {
+            deleteUserPhoto(id, function() {
+              refreshGalleryView();
+              rebuildAllSlots();
+            });
+          }
+        });
+      });
+    });
+  }
+
+  // ---- Rebuild all slot boxes with combined photos ----
+  function rebuildAllSlots() {
+    getAllUserPhotos(function(userPhotos) {
+      // Combine default + user photos
+      var all = [];
+      defaultFiles.forEach(function(f) { all.push({ src: base + f, isDefault: true }); });
+      if (userPhotos) {
+        userPhotos.forEach(function(up) { all.push({ src: up.data, isDefault: false }); });
+      }
+      // Shuffle
+      for (var si = all.length - 1; si > 0; si--) {
+        var sj = Math.floor(Math.random() * (si + 1));
+        var st = all[si]; all[si] = all[sj]; all[sj] = st;
+      }
+      // Distribute into 3 boxes
+      var boxPhotos = [[], [], []];
+      for (var bi = 0; bi < all.length; bi++) {
+        boxPhotos[bi % 3].push(all[bi]);
+      }
+      // Build HTML
+      var h = '<div class="photo-slot-section"><div class="slot-boxes">';
+      for (var b = 0; b < 3; b++) {
+        h += '<div class="slot-box" data-box="' + b + '"><div class="slot-viewport"><div class="slot-track">';
+        for (var p = 0; p < boxPhotos[b].length; p++) {
+          h += '<div class="slot-item"><img src="' + boxPhotos[b][p].src + '" alt="" loading="lazy"></div>';
+        }
+        h += '</div></div><div class="slot-dots">';
+        for (var d = 0; d < boxPhotos[b].length; d++) {
+          h += '<span class="dot' + (d === 0 ? ' active' : '') + '"></span>';
+        }
+        h += '</div></div>';
+      }
+      h += '</div><div class="slot-actions">';
+      h += '<button class="slot-spin-btn" id="slotSpinBtn">随机定格我们的回忆</button>';
+      h += '<button class="slot-manage-btn" id="slotManageBtn">管理图库</button>';
+      h += '</div></div>';
+      container.innerHTML = h;
+
+      // Re-initialize slot functionality
+      var boxes = container.querySelectorAll('.slot-box');
+      var slots = [];
+      boxes.forEach(function(box, idx) {
+        var vp = box.querySelector('.slot-viewport');
+        var tk = box.querySelector('.slot-track');
+        var dots = box.querySelectorAll('.dot');
+        var items = tk.querySelectorAll('.slot-item');
+        var total = items.length;
+        var cur = 0;
+
+        function goTo(i) {
+          if (i < 0) i = 0;
+          if (i >= total) i = total - 1;
+          cur = i;
+          tk.style.transform = 'translateX(' + (-cur * 100) + '%)';
+          dots.forEach(function(d, di) { d.classList.toggle('active', di === cur); });
+        }
+        goTo(0);
+
+        var sx = 0, startTime = 0, drag = false, touchHandled = false;
+        vp.addEventListener('touchstart', function(e) {
+          if (vp.classList.contains('spinning')) return;
+          touchHandled = true;
+          sx = e.touches[0].clientX;
+          drag = true;
+          startTime = Date.now();
+          tk.style.transition = 'none';
+        }, { passive: true });
+        vp.addEventListener('touchmove', function(e) {
+          if (!drag || vp.classList.contains('spinning')) return;
+          var dx = e.touches[0].clientX - sx;
+          var pct = (-cur * 100) + (dx / vp.offsetWidth * 100);
+          tk.style.transform = 'translateX(' + pct + '%)';
+        }, { passive: true });
+        vp.addEventListener('touchend', function(e) {
+          if (!drag) return;
+          drag = false;
+          tk.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
+          var dx = e.changedTouches[0].clientX - sx;
+          var elapsed = Date.now() - startTime;
+          var velocity = Math.abs(dx) / Math.max(elapsed, 1);
+          var threshold = vp.offsetWidth * 0.2;
+          if (dx < -threshold || (dx < -15 && velocity > 0.4)) {
+            goTo(cur + 1);
+          } else if (dx > threshold || (dx > 15 && velocity > 0.4)) {
+            goTo(cur - 1);
+          } else {
+            goTo(cur);
+          }
+          setTimeout(function() { touchHandled = false; }, 350);
+        }, { passive: true });
+        vp.addEventListener('mousedown', function(e) {
+          if (vp.classList.contains('spinning')) return;
+          if (touchHandled) return;
+          sx = e.clientX;
+          drag = true;
+          startTime = Date.now();
+          tk.style.transition = 'none';
+          e.preventDefault();
+        });
+        document.addEventListener('mousemove', function(e) {
+          if (!drag || touchHandled) return;
+          var dx = e.clientX - sx;
+          var pct = (-cur * 100) + (dx / vp.offsetWidth * 100);
+          tk.style.transform = 'translateX(' + pct + '%)';
+        });
+        document.addEventListener('mouseup', function(e) {
+          if (!drag || touchHandled) return;
+          drag = false;
+          tk.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
+          var dx = e.clientX - sx;
+          var elapsed = Date.now() - startTime;
+          var velocity = Math.abs(dx) / Math.max(elapsed, 1);
+          var threshold = vp.offsetWidth * 0.2;
+          if (dx < -threshold || (dx < -15 && velocity > 0.4)) {
+            goTo(cur + 1);
+          } else if (dx > threshold || (dx > 15 && velocity > 0.4)) {
+            goTo(cur - 1);
+          } else {
+            goTo(cur);
+          }
+        });
+        dots.forEach(function(dot) {
+          dot.addEventListener('click', function() {
+            var di = Array.prototype.indexOf.call(dots, this);
+            if (!vp.classList.contains('spinning')) goTo(di);
+          });
+        });
+        slots.push({ vp: vp, tk: tk, goTo: goTo, total: total, cur: function() { return cur; } });
+      });
+
+      // Re-init spin button
+      var btn = container.querySelector('#slotSpinBtn');
+      var spinning = false;
+      btn.addEventListener('click', function() {
+        if (spinning) return;
+        spinning = true;
+        btn.disabled = true;
+        btn.textContent = '回忆转动中...';
+        slots.forEach(function(s) { s.vp.classList.add('spinning'); });
+        slots.forEach(function(s) { s.tk.style.transition = ''; });
+        var durations = [2600, 2800, 3000];
+        var remaining = 3;
+        slots.forEach(function(slot, si) {
+          var start = Date.now();
+          var dur = durations[si];
+          function tick() {
+            var elapsed = Date.now() - start;
+            var p = Math.min(elapsed / dur, 1);
+            var eased = 1 - Math.pow(1 - p, 3);
+            slot.goTo(Math.floor(Math.random() * slot.total));
+            if (p < 1) {
+              setTimeout(tick, 50 + eased * 250);
+            } else {
+              slot.tk.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+              slot.goTo(Math.floor(Math.random() * slot.total));
+              remaining--;
+              if (remaining === 0) {
+                setTimeout(function() {
+                  spinning = false;
+                  btn.disabled = false;
+                  btn.textContent = '随机定格我们的回忆';
+                  slots.forEach(function(s) { s.vp.classList.remove('spinning'); });
+                  slots.forEach(function(s) { s.tk.style.transition = ''; });
+                }, 400);
+              }
+            }
+          }
+          setTimeout(tick, si * 120);
+        });
+      });
+
+      // Re-attach manage button handler
+      var newManageBtn = container.querySelector('#slotManageBtn');
+      newManageBtn.addEventListener('click', function() {
+        refreshGalleryView();
+        overlay.style.display = 'flex';
+      });
+    });
+  }
+}
 
 function initParticles() {
 
@@ -790,6 +1148,8 @@ function initNav() {
     e.stopPropagation();
     menu.classList.remove('open');
   });
+  // Initialize gallery manager
+  setupGalleryManager(container);
 }
 
 function initCelebration() {
@@ -979,4 +1339,8 @@ function initCatMascot() {
       this.classList.toggle('expanded');
     });
   });
+  // Initialize gallery manager
+  setupGalleryManager(container);
 }
+
+

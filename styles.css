@@ -1938,6 +1938,205 @@ h1, h2, h3, h4 {
 
 
 
+/* ====== Gallery Manager ====== */
+.slot-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.slot-manage-btn {
+  padding: 10px 24px;
+  font-family: var(--font-body);
+  font-size: clamp(13px, 2vw, 15px);
+  font-weight: 500;
+  color: var(--pink-600);
+  background: var(--pink-100);
+  border: 1.5px solid var(--pink-300);
+  border-radius: 40px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.slot-manage-btn:hover {
+  background: var(--pink-200);
+  border-color: var(--pink-400);
+  transform: translateY(-1px);
+}
+.slot-manage-btn:active {
+  transform: translateY(0);
+}
+
+/* Overlay */
+.gallery-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 35, 38, 0.55);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+/* Modal */
+.gallery-modal {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--pink-100);
+  flex-shrink: 0;
+}
+.gallery-header h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--text-primary);
+  margin: 0;
+}
+.gallery-count {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-left: 8px;
+}
+.gallery-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--pink-100);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-secondary);
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+.gallery-close-btn:hover {
+  background: var(--pink-200);
+  color: var(--text-primary);
+}
+.gallery-toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--pink-100);
+  flex-shrink: 0;
+}
+.gallery-add-btn {
+  padding: 8px 20px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink-400), var(--pink-600));
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.gallery-add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(166, 109, 120, 0.3);
+}
+.gallery-add-btn:active {
+  transform: translateY(0);
+}
+.gallery-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--pink-100);
+  box-shadow: 0 2px 8px rgba(45, 35, 38, 0.06);
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gallery-item .gallery-del-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.gallery-item:hover .gallery-del-btn {
+  opacity: 1;
+}
+.gallery-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .slot-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .slot-manage-btn {
+    width: 100%;
+    text-align: center;
+  }
+  .gallery-modal {
+    max-height: 90vh;
+    border-radius: var(--radius-md);
+  }
+  .gallery-body {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+  .gallery-header {
+    padding: 14px 16px;
+  }
+  .gallery-toolbar {
+    padding: 10px 16px;
+  }
+}
+
 
 /* ---------- Floating Wish Strips ---------- */
 .wish-strip {
