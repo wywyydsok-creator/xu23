@@ -1230,7 +1230,33 @@ h1, h2, h3, h4 {
 
   .hero {
     padding: 60px 20px 30px;
-    min-height: 100dvh;
+    min-height: 100svh;
+  }
+
+  .hero-content {
+    padding-top: 16vh;
+  }
+
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 14vh;
+  }
+
+  .hero-cake {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 8vh;
+  }
+
+  .hero-title {
+    font-size: clamp(36px, 8vw, 72px);
+    margin: 0;
+    padding: 0 24px;
   }
 
     .hero-bg-number {
@@ -1241,7 +1267,7 @@ h1, h2, h3, h4 {
 
   .cake-container {
     transform: scale(0.7);
-    margin: 20px auto 10px;
+    margin: 0;
   }
 
   .section {
@@ -1283,12 +1309,9 @@ h1, h2, h3, h4 {
 
 
 @media (max-width: 480px) {
-  .hero-title {
-    margin-bottom: 5px;
-  }
   .cake-container {
     transform: scale(0.55);
-    margin: 0 auto 0;
+    margin: 0;
   }
 
   .scroll-indicator {
@@ -1349,7 +1372,15 @@ h1, h2, h3, h4 {
 
 @keyframes glow-pulse {
   0% { opacity: 0.6; transform: translateX(-50%) scale(1); }
-  100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+ 100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+ }
+
+/* ---------- Hero wrapper helpers (desktop: transparent to layout) ---------- */
+@media (min-width: 769px) {
+  .hero-text,
+  .hero-cake {
+    display: contents;
+  }
 }
 
 /* ---------- Print styles ---------- */
