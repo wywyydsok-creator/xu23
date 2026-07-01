@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   initParallax();
   initNav();
+  initCatMascot();
 
 });
 
@@ -963,3 +964,13 @@ function initCelebration() {
 }
 
 
+
+function initCatMascot() {
+  var cats = document.querySelectorAll('.cat-mascot');
+  if (!cats.length) return;
+  cats.forEach(function(cat) {
+    cat.addEventListener('click', function() {
+      this.classList.toggle('expanded');
+    });
+  });
+}

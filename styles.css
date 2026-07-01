@@ -784,6 +784,169 @@ h1, h2, h3, h4 {
   50% { transform: rotate(45deg) translate(4px, 4px); }
 }
 
+/* ---------- Cat Mascot & Speech Bubble ---------- */
+.cat-mascot {
+  position: absolute;
+  bottom: 30px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  max-width: 360px;
+  opacity: 0;
+  animation: hero-entrance 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.5s forwards;
+}
+
+.cat-image-wrapper {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.95);
+  box-shadow: 0 4px 15px rgba(45, 35, 38, 0.15);
+  flex-shrink: 0;
+  position: relative;
+  background: var(--pink-100);
+  cursor: pointer;
+  transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 2;
+}
+
+.cat-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Cloud speech bubble */
+.speech-cloud {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 20px rgba(45, 35, 38, 0.10);
+  margin-bottom: 15px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.speech-cloud::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 22px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 12px solid #fff;
+  filter: drop-shadow(0 2px 3px rgba(45, 35, 38, 0.06));
+}
+
+.speech-cloud p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  letter-spacing: 0.03em;
+}
+
+/* ---------- Sticker Cat (right side) ---------- */
+.cat-mascot-right {
+  left: auto;
+  right: 20px;
+  flex-direction: row-reverse;
+}@media (max-width: 768px) {
+  .cat-mascot-right {
+    left: auto;
+    right: 12px;
+  }
+}
+@media (max-width: 480px) {
+  .cat-mascot-right {
+    left: auto;
+    right: 8px;
+  }
+}
+
+/* Expanded state - zoom cat image in place */
+.cat-mascot.expanded .cat-image-wrapper {
+  width: 300px;
+  height: 300px;
+  border-radius: 12px;
+  border-color: rgba(255,255,255,0.98);
+  box-shadow: 0 12px 50px rgba(45, 35, 38, 0.30);
+  z-index: 30;
+}
+
+.cat-mascot.expanded .cat-img {
+  object-position: center center;
+}
+
+.cat-mascot.expanded .speech-cloud {
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .cat-mascot.expanded .cat-image-wrapper {
+    width: 240px;
+    height: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cat-mascot.expanded .cat-image-wrapper {
+    width: 200px;
+    height: 200px;
+    border-radius: 8px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .cat-mascot {
+    bottom: 20px;
+    left: 12px;
+    max-width: 280px;
+  }
+  .cat-image-wrapper {
+    width: 65px;
+    height: 65px;
+  }
+  .speech-cloud {
+    padding: 10px 14px;
+  }
+  .speech-cloud p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cat-mascot {
+    bottom: 10px;
+    left: 8px;
+    max-width: 220px;
+  }
+  .cat-image-wrapper {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+  }
+  .speech-cloud {
+    padding: 8px 12px;
+  }
+  .speech-cloud p {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+}
+
 /* ---------- Section Base ---------- */
 .section {
   padding: var(--section-padding);
