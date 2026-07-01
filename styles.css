@@ -2107,6 +2107,42 @@ h1, h2, h3, h4 {
   grid-column: 1 / -1;
   text-align: center;
   padding: 40px 20px;
+.gallery-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--pink-100);
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gallery-confirm-btn {
+  padding: 10px 40px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink-400), var(--pink-600));
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.gallery-confirm-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(166, 109, 120, 0.3);
+}
+.gallery-confirm-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+  .gallery-footer {
+    padding: 12px 16px;
+  }
+  .gallery-confirm-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}
   color: var(--text-tertiary);
   font-size: 14px;
 }

@@ -544,49 +544,23 @@ function setupGalleryManager(container) {
   ];
   var base = 'photos/slot/';
 
-  // ---- IndexedDB helpers ----
-  function openDB(cb) {
-    var req = indexedDB.open('PhotoGallery', 1);
-    req.onupgradeneeded = function(e) {
-      var db = e.target.result;
-      if (!db.objectStoreNames.contains('photos')) {
-        db.createObjectStore('photos', { keyPath: 'id', autoIncrement: true });
-      }
-    };
-    req.onsuccess = function() { cb(req.result); };
-    req.onerror = function() { cb(null); };
-  }
-  function getAllUserPhotos(cb) {
-    openDB(function(db) {
-      if (!db) { cb([]); return; }
-      var tx = db.transaction('photos', 'readonly');
-      var req = tx.objectStore('photos').getAll();
-      req.onsuccess = function() { cb(req.result || []); };
-      req.onerror = function() { cb([]); };
-    });
-  }
+  // ---- In-memory storage (replaces IndexedDB for file:// compatibility) ----
+  var userPhotosArray = [];
+  var nextPhotoId = 1;
+  function getAllUserPhotos(cb) { cb(userPhotosArray.slice()); }
   function addUserPhotos(photos, cb) {
-    openDB(function(db) {
-      if (!db) { if (cb) cb(); return; }
-      var tx = db.transaction('photos', 'readwrite');
-      var store = tx.objectStore('photos');
-      var added = 0;
-      photos.forEach(function(p) {
-        var r = store.add({ data: p.src, name: p.name, added: Date.now() });
-        r.onerror = function(e) { if (e.target.error && e.target.error.name === 'QuotaExceededError') { alert('存储空间已满，无法添加更多照片。'); } };
-      });
-      tx.oncomplete = function() { if (cb) cb(); };
-      tx.onerror = function() { if (cb) cb(); };
+    photos.forEach(function(p) {
+      userPhotosArray.push({ id: nextPhotoId++, data: p.src, name: p.name, added: Date.now() });
     });
+    if (cb) cb();
   }
   function deleteUserPhoto(id, cb) {
-    openDB(function(db) {
-      if (!db) { if (cb) cb(); return; }
-      var tx = db.transaction('photos', 'readwrite');
-      tx.objectStore('photos').delete(id);
-      tx.oncomplete = function() { if (cb) cb(); };
-    });
+    for (var i = 0; i < userPhotosArray.length; i++) {
+      if (userPhotosArray[i].id === id) { userPhotosArray.splice(i, 1); break; }
+    }
+    if (cb) cb();
   }
+  function clearAllUserPhotos() { userPhotosArray = []; nextPhotoId = 1; }
 
   // ---- Create hidden file input ----
   var fileInput = document.createElement('input');
@@ -610,9 +584,10 @@ function setupGalleryManager(container) {
         '<button class="gallery-add-btn" id="galleryAddBtn">+ 添加照片</button>' +
       '</div>' +
       '<div class="gallery-body" id="galleryBody"></div>' +
+      '<div class="gallery-footer"><button class="gallery-confirm-btn" id="galleryConfirmBtn">确定</button></div>'
     '</div>';
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.style.display = 'none';
+    if (e.target === overlay) { clearAllUserPhotos(); overlay.style.display = 'none'; rebuildAllSlots(); }
   });
   document.body.appendChild(overlay);
 
@@ -627,7 +602,14 @@ function setupGalleryManager(container) {
 
   // ---- Close button ----
   overlay.querySelector('#galleryCloseBtn').addEventListener('click', function() {
+    clearAllUserPhotos();
     overlay.style.display = 'none';
+    rebuildAllSlots();
+  });
+  overlay.querySelector('#galleryConfirmBtn').addEventListener('click', function() {
+    clearAllUserPhotos();
+    overlay.style.display = 'none';
+    rebuildAllSlots();
   });
 
   // ---- Add button: trigger file picker ----
@@ -1342,5 +1324,7 @@ function initCatMascot() {
   // Initialize gallery manager
   setupGalleryManager(container);
 }
+
+
 
 
