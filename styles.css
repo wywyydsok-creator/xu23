@@ -1229,12 +1229,13 @@ h1, h2, h3, h4 {
   }
 
   .hero {
-    padding: 60px 20px 30px;
+    padding: 40px 20px 24px;
     min-height: 100svh;
+    justify-content: flex-start;
   }
 
   .hero-content {
-    padding-top: 6vh;
+    padding-top: 2vh;
   }
 
   .hero-text {
@@ -1250,11 +1251,11 @@ h1, h2, h3, h4 {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding-bottom: 6vh;
+    padding-bottom: 4vh;
   }
 
   .hero-title {
-    font-size: clamp(36px, 8vw, 72px);
+    font-size: clamp(48px, 10vw, 80px);
     margin: 0;
     padding: 0 24px;
   }
