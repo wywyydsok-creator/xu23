@@ -1717,26 +1717,30 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 600px) {
+  .photo-slot-section {
+    width: 90%;
+    margin: 0 auto;
+  }
   .slot-boxes {
     flex-direction: row;
-    gap: 8px;
-    justify-content: center;
+    gap: 10px;
   }
   .slot-viewport {
     aspect-ratio: 3/4;
   }
   .slot-box {
     flex: 1;
+    min-width: 0;
   }
   .slot-dots {
-    padding: 6px 2px;
+    padding: 8px 4px;
   }
   .slot-dots .dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
   .slot-spin-btn {
-    padding: 12px 24px;
+    padding: 12px 28px;
     font-size: 14px;
   }
 }
