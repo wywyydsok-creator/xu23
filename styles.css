@@ -1192,9 +1192,9 @@ h1, h2, h3, h4 {
   }
 
     .hero-bg-number {
-    font-size: clamp(200px, 55vw, 380px);
-    top: 50%;
-    letter-spacing: 0.04em;
+    font-size: clamp(70px, 16vw, 110px);
+    top: 55%;
+    letter-spacing: clamp(100px, 25vw, 180px);
   }
 
   .cake-container {
