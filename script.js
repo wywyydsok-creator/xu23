@@ -511,12 +511,14 @@ function initPhotoGrid() {
           slot.tk.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
           slot.goTo(Math.floor(Math.random() * slot.total));
           remaining--;
-          if (remaining === 0) {
-            spinning = false;
-            btn.disabled = false;
-            btn.textContent = '?? 随机定格我们的回忆';
-            slots.forEach(function(s) { s.vp.classList.remove('spinning'); });
-            slots.forEach(function(s) { s.tk.style.transition = ''; });
+         if (remaining === 0) {
+            setTimeout(function() {
+              spinning = false;
+              btn.disabled = false;
+              btn.textContent = '?? 随机定格我们的回忆';
+              slots.forEach(function(s) { s.vp.classList.remove('spinning'); });
+              slots.forEach(function(s) { s.tk.style.transition = ''; });
+            }, 400);
           }
         }
       }
