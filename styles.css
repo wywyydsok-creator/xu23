@@ -1715,7 +1715,7 @@ h1, h2, h3, h4 {
   will-change: transform;
 }
 .slot-viewport.spinning .slot-track {
-  transition: transform 0.15s ease-out !important;
+  transition: transform 0.15s ease-out;
 }
 .slot-item {
   min-width: 100%;
@@ -1806,7 +1806,7 @@ h1, h2, h3, h4 {
     gap: 16px;
   }
   .slot-viewport {
-    aspect-ratio: 3/4;
+    aspect-ratio: 1/1;
   }
   .slot-box {
     flex: 1;

@@ -490,6 +490,7 @@ function initPhotoGrid() {
     btn.disabled = true;
     btn.textContent = '🎰 回忆转动中...';
     slots.forEach(function(s) { s.vp.classList.add('spinning'); });
+    slots.forEach(function(s) { s.tk.style.transition = ''; });
 
     var durations = [2600, 2800, 3000];
     var remaining = 3;
@@ -514,6 +515,7 @@ function initPhotoGrid() {
             btn.disabled = false;
             btn.textContent = '🎰 随机定格我们的回忆';
             slots.forEach(function(s) { s.vp.classList.remove('spinning'); });
+            slots.forEach(function(s) { s.tk.style.transition = ''; });
           }
         }
       }
