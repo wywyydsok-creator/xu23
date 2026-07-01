@@ -669,6 +669,12 @@ h1, h2, h3, h4 {
   background: linear-gradient(180deg, #F0C4D0 0%, #E3A8B8 100%);
 }
 
+/* Single candle */
+.candle-1 .candle-body {
+  height: 78px;
+  background: linear-gradient(180deg, #F2C8D4 0%, #E0A0B2 100%);
+}
+
 /* Candle glow */
 .candle-body::before {
   content: '';
