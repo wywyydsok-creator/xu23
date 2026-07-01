@@ -1,4 +1,4 @@
-/* =============================================
+﻿/* =============================================
    Happy 23rd Birthday - Apple-Inspired Design
    Color Palette: Blush pink, rose, warm neutrals
    ============================================= */
@@ -35,6 +35,16 @@
   --font-body: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
   --max-width: 1200px;
   --section-padding: 120px 24px;
+}
+
+/* ---------- Glass Utility Class ---------- */
+.glass {
+  background: rgba(253, 248, 249, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 166, 174, 0.15);
+  box-shadow: 0 8px 32px rgba(45, 35, 38, 0.06);
+  border-radius: var(--radius-md);
 }
 
 /* ---------- Reset ---------- */
@@ -332,14 +342,22 @@ h1, h2, h3, h4 {
 }
 
 .hero-title {
+  display: inline-block;
+  background: rgba(253, 248, 249, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 166, 174, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 16px 40px;
   font-size: clamp(32px, 5vw, 56px);
   color: var(--text-secondary);
   font-weight: 700;
   margin-top: -3em;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
   letter-spacing: 0.08em;
   position: relative;
   z-index: 2;
+  box-shadow: 0 8px 32px rgba(45, 35, 38, 0.06);
 }
 
 .hero-name {
@@ -965,6 +983,20 @@ h1, h2, h3, h4 {
 .photo-item:hover img {
   transform: scale(1.05);
 }
+.photo-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(253, 248, 249, 0.35) 100%);
+  pointer-events: none;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.photo-item:hover::after {
+  opacity: 1;
+}
 
 /* Photo label */
 .photo-label {
@@ -1167,6 +1199,12 @@ h1, h2, h3, h4 {
   30% { transform: scale(1); }
   45% { transform: scale(1.2); }
   60% { transform: scale(1); }
+}
+
+/* ---------- Responsive Glass ---------- */
+@media (max-width: 768px) {
+  .hero-title { padding: 12px 24px; margin-bottom: 20px; }
+  .message-text { padding: 24px; }
 }
 
 /* ---------- Responsive ---------- */
@@ -1414,8 +1452,8 @@ h1, h2, h3, h4 {
   list-style: none;
   margin: 0;
   padding: 8px 0;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(8px);
+  background: rgba(253, 248, 249, 0.7);
+  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(8px);
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
@@ -1609,9 +1647,12 @@ h1, h2, h3, h4 {
 .slot-box {
   flex: 1;
   min-width: 0;
-  background: var(--pink-100);
+  background: rgba(253, 248, 249, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 166, 174, 0.12);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 24px rgba(45, 35, 38, 0.05);
   overflow: hidden;
   position: relative;
 }
@@ -1743,3 +1784,4 @@ h1, h2, h3, h4 {
     font-size: 14px;
   }
 }
+
