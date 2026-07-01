@@ -329,6 +329,11 @@ h1, h2, h3, h4 {
 }
 
 .hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-top: 8vh;
   text-align: center;
   position: relative;
   z-index: 1;
@@ -346,8 +351,7 @@ h1, h2, h3, h4 {
   font-size: clamp(42px, 7vw, 72px);
   color: var(--pink-500);
   font-weight: 400;
-  margin-top: -3em;
-  margin-bottom: 40px;
+  margin: 0 0 10vh 0;
   letter-spacing: 0.04em;
   position: relative;
   z-index: 2;
@@ -1203,7 +1207,7 @@ h1, h2, h3, h4 {
 
 /* ---------- Responsive Glass ---------- */
 @media (max-width: 768px) {
-  .hero-title { padding: 12px 24px; margin-bottom: 20px; }
+  .hero-title { padding: 12px 24px; }
   .message-text { padding: 24px; }
 }
 
@@ -1278,15 +1282,8 @@ h1, h2, h3, h4 {
 }
 
 
-@media (max-width: 768px) {
-  .hero-title {
-    margin-top: -5em;
-    margin-bottom: 20px;
-  }
-}
 @media (max-width: 480px) {
   .hero-title {
-    margin-top: -7em;
     margin-bottom: 5px;
   }
   .cake-container {
@@ -1342,7 +1339,7 @@ h1, h2, h3, h4 {
   height: 200px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(252, 213, 160, 0.15) 0%, transparent 70%);
-  top: 38%;
+  top: 44%;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
