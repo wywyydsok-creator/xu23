@@ -1,4 +1,4 @@
-﻿/* =============================================
+/* =============================================
    Happy 23rd Birthday - Apple-Inspired Design
    Color Palette: Blush pink, rose, warm neutrals
    ============================================= */
@@ -1718,19 +1718,22 @@ h1, h2, h3, h4 {
 
 @media (max-width: 600px) {
   .slot-boxes {
-    flex-direction: column;
-    gap: 20px;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
   }
   .slot-viewport {
     aspect-ratio: 3/4;
-    max-height: 70vh;
+  }
+  .slot-box {
+    flex: 1;
   }
   .slot-dots {
-    padding: 8px 4px;
+    padding: 6px 2px;
   }
   .slot-dots .dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   .slot-spin-btn {
     padding: 12px 24px;
