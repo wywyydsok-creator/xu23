@@ -1,4 +1,4 @@
-﻿/* =============================================
+/* =============================================
    Happy 23rd Birthday - Apple-Inspired Design
    Color Palette: Blush pink, rose, warm neutrals
    ============================================= */
@@ -827,7 +827,7 @@ h1, h2, h3, h4 {
   position: relative;
   background: #fff;
   border-radius: 20px;
-  padding: 14px 18px;
+  padding: 16px 22px;
   box-shadow: 0 4px 20px rgba(45, 35, 38, 0.10);
   margin-bottom: 15px;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -848,14 +848,14 @@ h1, h2, h3, h4 {
 
 .speech-cloud p {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.8;
   color: var(--text-primary);
   font-family: var(--font-body);
   letter-spacing: 0.03em;
+  word-break: break-word;
 }
 
-/* ---------- Sticker Cat (right side) ---------- */
 .cat-mascot-right {
   left: auto;
   right: 20px;
@@ -875,6 +875,10 @@ h1, h2, h3, h4 {
 
 /* Expanded state - zoom cat image in place */
 .cat-mascot.expanded .cat-image-wrapper {
+
+.cat-mascot.expanded {
+  z-index: 30;
+}
   width: 300px;
   height: 300px;
   border-radius: 12px;
@@ -913,14 +917,14 @@ h1, h2, h3, h4 {
   .cat-mascot {
     bottom: 20px;
     left: 12px;
-    max-width: 380px;
+    max-width: 220px;
   }
   .cat-image-wrapper {
     width: 100px;
     height: 100px;
   }
   .speech-cloud {
-    padding: 14px 18px;
+    padding: 16px 22px;
   }
   .speech-cloud p {
     font-size: 14px;
@@ -931,7 +935,7 @@ h1, h2, h3, h4 {
   .cat-mascot {
     bottom: 15px;
     left: 8px;
-    max-width: 320px;
+    max-width: 170px;
   }
   .cat-image-wrapper {
     width: 85px;
@@ -939,11 +943,11 @@ h1, h2, h3, h4 {
     border-width: 2px;
   }
   .speech-cloud {
-    padding: 12px 16px;
+    padding: 12px 18px;
   }
   .speech-cloud p {
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.7;
   }
 }
 
