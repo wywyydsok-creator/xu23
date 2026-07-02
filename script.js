@@ -588,7 +588,7 @@ function setupGalleryManager(container) {
       '<div class="gallery-footer"><button class="gallery-confirm-btn" id="galleryConfirmBtn">确定</button></div>'
     '</div>';
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) { clearAllUserPhotos(); overlay.style.display = 'none'; rebuildAllSlots(); }
+    if (e.target === overlay) { overlay.style.display = 'none'; rebuildAllSlots(); }
   });
   document.body.appendChild(overlay);
 
@@ -602,16 +602,14 @@ function setupGalleryManager(container) {
   }
 
   // ---- Close button ----
-  overlay.querySelector('#galleryCloseBtn').addEventListener('click', function() {
-    clearAllUserPhotos();
-    overlay.style.display = 'none';
-    rebuildAllSlots();
-  });
-  overlay.querySelector('#galleryConfirmBtn').addEventListener('click', function() {
-    clearAllUserPhotos();
-    overlay.style.display = 'none';
-    rebuildAllSlots();
-  });
+ overlay.querySelector('#galleryCloseBtn').addEventListener('click', function() {
+   overlay.style.display = 'none';
+   rebuildAllSlots();
+ });
+ overlay.querySelector('#galleryConfirmBtn').addEventListener('click', function() {
+   overlay.style.display = 'none';
+   rebuildAllSlots();
+ });
 
   // ---- Add button: trigger file picker ----
   overlay.querySelector('#galleryAddBtn').addEventListener('click', function() {

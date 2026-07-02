@@ -2107,6 +2107,9 @@ h1, h2, h3, h4 {
   grid-column: 1 / -1;
   text-align: center;
   padding: 40px 20px;
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
 .gallery-footer {
   padding: 14px 24px;
   border-top: 1px solid var(--pink-100);
@@ -2115,10 +2118,10 @@ h1, h2, h3, h4 {
   flex-shrink: 0;
 }
 .gallery-confirm-btn {
-  padding: 10px 40px;
+  padding: 14px 56px;
   font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, var(--pink-400), var(--pink-600));
   border: none;
@@ -2140,12 +2143,11 @@ h1, h2, h3, h4 {
   }
   .gallery-confirm-btn {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
+    font-size: 16px;
   }
 }
-  color: var(--text-tertiary);
-  font-size: 14px;
-}
+
 
 @media (max-width: 600px) {
   .slot-actions {
