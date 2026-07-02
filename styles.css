@@ -2205,3 +2205,15 @@ h1, h2, h3, h4 {
     display: none;
   }
 }
+
+
+/* ---------- Cat Image In-Place Zoom ---------- */
+.cat-image-wrapper.zoomed {
+  width: clamp(200px, 35vw, 380px) !important;
+  height: clamp(200px, 35vw, 380px) !important;
+  border-radius: 12px !important;
+  border-color: rgba(255,255,255,0.98) !important;
+  box-shadow: 0 12px 50px rgba(45, 35, 38, 0.30) !important;
+  position: relative !important;
+  z-index: 30 !important;
+}

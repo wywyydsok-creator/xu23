@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initParallax();
   initNav();
   initCatMascot();
+  initImageZoom();
 
 });
 
@@ -1130,8 +1131,6 @@ function initNav() {
     e.stopPropagation();
     menu.classList.remove('open');
   });
-  // Initialize gallery manager
-  setupGalleryManager(container);
 }
 
 function initCelebration() {
@@ -1321,10 +1320,29 @@ function initCatMascot() {
       this.classList.toggle('expanded');
     });
   });
-  // Initialize gallery manager
-  setupGalleryManager(container);
 }
 
 
 
 
+
+function initImageZoom() {
+  var wrappers = document.querySelectorAll('.cat-image-wrapper');
+  if (!wrappers.length) return;
+  wrappers.forEach(function(w) {
+    var img = w.querySelector('.cat-img');
+    if (!img) return;
+    img.style.cursor = 'pointer';
+    img.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Zoom this wrapper in-place
+      w.classList.toggle('zoomed');
+    });
+  });
+  // Close zoomed image when clicking elsewhere on the page
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.cat-image-wrapper.zoomed .cat-img')) {
+      wrappers.forEach(function(w) { w.classList.remove('zoomed'); });
+    }
+  });
+}
