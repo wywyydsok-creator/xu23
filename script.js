@@ -545,23 +545,81 @@ function setupGalleryManager(container) {
   ];
   var base = 'photos/slot/';
 
-  // ---- In-memory storage (replaces IndexedDB for file:// compatibility) ----
+  // ---- Supabase-backed storage ----
+  var supabasePhotos = [];
+  var supabaseReady = false;
+
+  // Init Supabase: fetch all photos (called on load or when CDN finishes)
+  function initSupabase() {
+    if (supabaseReady) return;
+    fetchAllPhotos().then(function(photos) {
+      supabasePhotos = photos || [];
+      supabaseReady = true;
+      refreshGalleryView();
+      rebuildAllSlots();
+    }).catch(function(err) {
+      console.warn('[Gallery] Supabase unavailable, using local fallback:', err.message);
+      supabaseClient = null;
+    });
+  }
+  if (supabaseClient != null) {
+    initSupabase();
+  }
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('supabase-ready', initSupabase, { once: true });
+  }
+
+  // ---- In-memory fallback (when Supabase is unavailable) ----
   var userPhotosArray = [];
   var nextPhotoId = 1;
-  function getAllUserPhotos(cb) { cb(userPhotosArray.slice()); }
-  function addUserPhotos(photos, cb) {
-    photos.forEach(function(p) {
-      userPhotosArray.push({ id: nextPhotoId++, data: p.src, name: p.name, added: Date.now() });
-    });
-    if (cb) cb();
-  }
-  function deleteUserPhoto(id, cb) {
-    for (var i = 0; i < userPhotosArray.length; i++) {
-      if (userPhotosArray[i].id === id) { userPhotosArray.splice(i, 1); break; }
+  function getAllUserPhotos(cb) {
+    if (supabaseClient != null && supabaseReady) {
+      cb(supabasePhotos.slice());
+    } else if (supabaseClient != null && !supabaseReady) {
+      cb([]);
+    } else {
+      cb(userPhotosArray.slice());
     }
-    if (cb) cb();
   }
-  function clearAllUserPhotos() { userPhotosArray = []; nextPhotoId = 1; }
+  function addUserPhotos(files, cb) {
+    if (supabaseClient != null) {
+      var count = 0;
+      files.forEach(function(file) {
+        uploadPhoto(file).then(function(record) {
+          supabasePhotos.push(record);
+          count++;
+          if (count === files.length && cb) cb();
+        }).catch(function(err) {
+          console.error('[Gallery] Upload failed:', err);
+          alert('上传失败：' + (err.message || err));
+          count++;
+          if (count === files.length && cb) cb();
+        });
+      });
+    } else {
+      files.forEach(function(p) {
+        userPhotosArray.push({ id: nextPhotoId++, data: p.src, name: p.name, added: Date.now() });
+      });
+      if (cb) cb();
+    }
+  }
+  function deleteUserPhoto(id, url, cb) {
+    if (supabaseClient != null) {
+      deletePhoto(id, url).then(function() {
+        supabasePhotos = supabasePhotos.filter(function(p) { return p.id !== id; });
+        if (cb) cb();
+      }).catch(function(err) {
+        console.error('[Gallery] Delete failed:', err);
+        if (cb) cb();
+      });
+    } else {
+      for (var i = 0; i < userPhotosArray.length; i++) {
+        if (userPhotosArray[i].id === id) { userPhotosArray.splice(i, 1); break; }
+      }
+      if (cb) cb();
+    }
+  }
+  function clearAllUserPhotos() { userPhotosArray = []; nextPhotoId = 1; supabasePhotos = []; }
 
   // ---- Create hidden file input ----
   var fileInput = document.createElement('input');
@@ -629,23 +687,32 @@ function setupGalleryManager(container) {
         return;
       }
       var toAdd = files.slice(0, remaining);
-      var results = [];
-      var pending = toAdd.length;
-      if (pending === 0) return;
-      toAdd.forEach(function(file) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          results.push({ src: e.target.result, name: file.name });
-          pending--;
-          if (pending === 0) {
-            addUserPhotos(results, function() {
-              refreshGalleryView();
-              rebuildAllSlots();
-            });
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      if (toAdd.length === 0) return;
+      if (supabaseClient != null) {
+        // Supabase: upload File objects directly
+        addUserPhotos(toAdd, function() {
+          refreshGalleryView();
+          rebuildAllSlots();
+        });
+      } else {
+        // Local: read as data URLs first
+        var results = [];
+        var pending = toAdd.length;
+        toAdd.forEach(function(file) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            results.push({ src: e.target.result, name: file.name });
+            pending--;
+            if (pending === 0) {
+              addUserPhotos(results, function() {
+                refreshGalleryView();
+                rebuildAllSlots();
+              });
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
     });
   });
 
@@ -653,34 +720,70 @@ function setupGalleryManager(container) {
   function refreshGalleryView() {
     var body = overlay.querySelector('#galleryBody');
     var count = overlay.querySelector('#galleryCount');
+    var totalDefault = defaultFiles.length;
     getAllUserPhotos(function(userPhotos) {
-      var totalDefault = defaultFiles.length;
-      var totalUser = userPhotos ? userPhotos.length : 0;
-      var grandTotal = totalDefault + totalUser;
-      count.textContent = '(' + grandTotal + ' / 1000)';
-      if (totalUser === 0) {
-        body.innerHTML = '<div class="gallery-empty">还没有添加自定义照片<br>点击上方按钮添加</div>';
-        return;
+      // Separate defaults from user-uploaded photos
+      var userItems = [];
+      if (supabaseClient != null && supabaseReady) {
+        // For Supabase mode, filter out records that are seeded defaults.
+        // Seeded defaults have URLs starting with "photos/slot/" and may lack isDefault flag.
+        userItems = userPhotos.filter(function(p) {
+          var url = p.url || '';
+          var isSeededDefault = url.indexOf(base) === 0 || url.indexOf('photos/slot/') === 0;
+          return !p.isDefault && !isSeededDefault;
+        });
+      } else {
+        userItems = userPhotos || [];
       }
+      var totalUser = userItems.length;
+      count.textContent = '(' + (totalDefault + totalUser) + ' / 1000)';
       var h = '';
-      for (var i = userPhotos.length - 1; i >= 0; i--) {
-        var p = userPhotos[i];
+      // Always show defaults (read-only, no delete button)
+      for (var i = 0; i < defaultFiles.length; i++) {
         h += '<div class="gallery-item">';
-        h += '<img src="' + p.data + '" alt="" loading="lazy">';
-        h += '<button class="gallery-del-btn" data-id="' + p.id + '">&times;</button>';
+        h += '<img src="' + base + defaultFiles[i] + '" alt="" loading="lazy">';
         h += '</div>';
       }
-      body.innerHTML = h;
+      // Show user-uploaded photos (with delete button)
+      for (var i = userItems.length - 1; i >= 0; i--) {
+        var p = userItems[i];
+        var imgSrc = p.url || p.data || '';
+        h += '<div class="gallery-item">';
+        h += '<img src="' + imgSrc + '" alt="" loading="lazy">';
+        h += '<button class="gallery-del-btn" data-id="' + p.id + '" data-url="' + (p.url || '') + '">&times;</button>';
+        h += '</div>';
+      }
+      if (!h) {
+        body.innerHTML = '<div class="gallery-empty">还没有照片<br>点击上方按钮添加</div>';
+      } else {
+        body.innerHTML = h;
+      }
       // Attach delete handlers
       body.querySelectorAll('.gallery-del-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          var id = Number(this.getAttribute('data-id'));
-          if (confirm('删除这张照片？')) {
-            deleteUserPhoto(id, function() {
+          var id = this.getAttribute('data-id');
+          var url = this.getAttribute('data-url');
+          if (confirm('删除这张照片？\n删除后无法恢复。')) {
+            deleteUserPhoto(id, url, function() {
               refreshGalleryView();
               rebuildAllSlots();
             });
           }
+        });
+      });
+      // Attach error handlers for broken images in gallery
+      body.querySelectorAll('.gallery-item img').forEach(function(img) {
+        if (img._hasErrorHandler) return;
+        img._hasErrorHandler = true;
+        img.addEventListener('error', function() {
+          if (this._errorHandled) return;
+          this._errorHandled = true;
+          this.style.display = 'none';
+          var fallback = document.createElement('div');
+          fallback.className = 'gallery-img-fallback';
+          fallback.style.cssText = 'width:100%;height:100%;min-height:120px;background:#f0e8ea;display:flex;align-items:center;justify-content:center;color:#c0a8ae;font-size:28px;border-radius:6px;';
+          fallback.innerHTML = '&#x1f5bc;';
+          this.parentNode.insertBefore(fallback, this.nextSibling);
         });
       });
     });
@@ -692,8 +795,20 @@ function setupGalleryManager(container) {
       // Combine default + user photos
       var all = [];
       defaultFiles.forEach(function(f) { all.push({ src: base + f, isDefault: true }); });
-      if (userPhotos) {
-        userPhotos.forEach(function(up) { all.push({ src: up.data, isDefault: false }); });
+      if (userPhotos && userPhotos.length > 0) {
+        // Filter out seeded defaults from Supabase records (same logic as refreshGalleryView)
+        var filteredUserPhotos = userPhotos;
+        if (supabaseClient != null && supabaseReady) {
+          filteredUserPhotos = userPhotos.filter(function(up) {
+            var url = up.url || '';
+            var isSeededDefault = url.indexOf(base) === 0 || url.indexOf('photos/slot/') === 0;
+            return !up.isDefault && !isSeededDefault;
+          });
+        }
+        filteredUserPhotos.forEach(function(up) {
+          var src = up.url || up.data || '';
+          if (src) all.push({ src: src, isDefault: false });
+        });
       }
       // Shuffle
       for (var si = all.length - 1; si > 0; si--) {
@@ -1344,3 +1459,4 @@ function initImageZoom() {
     }
   });
 }
+
